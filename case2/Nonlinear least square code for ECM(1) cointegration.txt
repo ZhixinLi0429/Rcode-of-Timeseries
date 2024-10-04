@@ -1,0 +1,64 @@
+alphainit  = coef(ECMmodel2)[[13]]
+
+theta1init = coef(ECMmodel2)[[2]]
+
+delta0init = coef(ECMmodel2)[[3]]
+delta1init = coef(ECMmodel2)[[4]]
+
+
+kappa0init = coef(ECMmodel2)[[5]]
+kappa1init = coef(ECMmodel2)[[6]]
+
+Oilstock0init = coef(ECMmodel2)[[7]]
+Oilstock1init = coef(ECMmodel2)[[8]]
+
+worldip0init = coef(ECMmodel2)[[9]]
+worldip1init = coef(ECMmodel2)[[10]]
+
+
+uscpi0init = coef(ECMmodel2)[[11]]
+uscpi1init = coef(ECMmodel2)[[12]]
+
+beta0init  = coef(static_model_inlevel)[[1]]
+beta1init  = coef(static_model_inlevel)[[2]]
+beta2init  = coef(static_model_inlevel)[[3]]
+beta3init  = coef(static_model_inlevel)[[4]]
+beta4init  = coef(static_model_inlevel)[[5]]
+beta5init  = coef(static_model_inlevel)[[6]]
+
+
+Yt_1        = lag(Yt,-1)
+OIL_P_1    = lag(OIL_P,-1)
+OIL_PROD_1    = lag(OIL_PROD,-1)
+OIL_STOCKS_1        = lag(OIL_STOCKS,-1)
+WORLD_IP_1    = lag(WORLD_IP,-1)
+US_CPI_1    = lag(US_CPI,-1)
+
+diff_Yt_1   = lag(diff_Yt,-1)
+diff_OIL_P_1   = lag(diff_OIL_P,-1)
+diff_OIL_PROD_1   = lag(diff_OIL_PROD,-1)
+diff_OIL_STOCKS_1   = lag(diff_OIL_STOCKS,-1)
+diff_WORLD_IP_1   = lag(diff_WORLD_IP,-1)
+diff_US_CPI_1   = lag(diff_US_CPI,-1)
+
+
+
+ECMdata  = data.frame(ts.union(Yt, OIL_P, OIL_PROD, OIL_STOCKS, WORLD_IP, US_CPI,
+                               Yt_1, OIL_P_1, OIL_PROD_1, OIL_STOCKS_1, WORLD_IP_1, US_CPI_1,
+                               diff_Yt, diff_OIL_P, diff_OIL_PROD, diff_OIL_STOCKS, diff_WORLD_IP, diff_US_CPI,
+                               diff_Yt_1, diff_OIL_P_1, diff_OIL_PROD_1, diff_OIL_STOCKS_1, diff_WORLD_IP_1, diff_US_CPI_1) )
+
+
+formula  = diff_Yt ~ theta1*diff_Yt_1 + delta0*diff_OIL_P + delta1*diff_OIL_P_1 +
+  kappa0*diff_OIL_PROD + kappa1*diff_OIL_PROD_1 + Oilstock0*diff_OIL_PROD + Oilstock1*diff_OIL_PROD_1+
+  worldip0*diff_WORLD_IP + worldip1*diff_WORLD_IP_1 + uscpi0*diff_US_CPI + uscpi1*diff_US_CPI_1+ 
+  alpha*( Yt_1 - beta0 - beta1*OIL_P_1 - beta2*OIL_PROD_1 - beta3*OIL_STOCKS_1 - beta4*WORLD_IP_1 - beta5*US_CPI_1 )
+
+ECMcoint = nls(formula, data = ECMdata, start = list(theta1 = theta1init, 
+                                                     delta0 = delta0init, delta1 = delta1init, kappa0 = kappa0init, kappa1 = kappa1init,
+                                                     Oilstock0 = Oilstock0init, Oilstock1 = Oilstock1init, 
+                                                     worldip0 = worldip0init, worldip1 = worldip1init, uscpi0 = uscpi0init, uscpi1 = uscpi1init,
+                                                     alpha = alphainit, 
+                                                     beta0 = beta0init, beta1 = beta1init, beta2 = beta2init, beta3 = beta3init,
+                                                     beta4 = beta4init, beta5 = beta5init) )
+summary(ECMcoint)
